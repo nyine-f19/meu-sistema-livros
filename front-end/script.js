@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const URL_BASE_API = 'http://localhost:8080';
+    const URL_BASE_API = 'https://meu-sistema-livros.onrender.com' ;
     const URL_API_AUTORES = `${URL_BASE_API}/autores`;
     const URL_API_LIVROS = `${URL_BASE_API}/livros`;
     let todosOsAutores = [];

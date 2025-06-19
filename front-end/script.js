@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // URL da sua API de produção
-    const API_BASE_URL = 'https://api-ifbooks.onrender.com'; // Altere se o nome do seu serviço for diferente
+    const API_BASE_URL = 'https://sistema-de-livros.onrender.com'; // Altere se o nome do seu serviço for diferente
 
     // --- Seletores de Elementos (cache para performance) ---
     const elementos = {
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elementos.spinnerLivro.classList.remove('escondido');
         try {
             todosLivros = await fetchData('livros');
-            renderizarTabelaLivros(todosLivros);
+            editarLivros(todosLivros);
         } catch (err) {
             mostrarNotificacao(err.message, 'error');
         } finally {
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td data-label="Nacionalidade">${autor.nacionalidade || 'N/A'}</td>
                 <td data-label="Data Nasc.">${autor.dataNascimento ? new Date(autor.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A'}</td>
                 <td data-label="Ações">
-                    <button onclick="window.abrirEdicaoAutor(${autor.id})" class="btn btn-warning">Editar</button>
+                    <button onclick="window.editarAutor(${autor.id})" class="btn btn-warning">Editar</button>
                     <button onclick="window.deletarAutor(${autor.id})" class="btn btn-danger">Excluir</button>
                 </td>
             </tr>
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td data-label="Editora">${livro.editora || 'N/A'}</td>
                 <td data-label="Resumo"><span class="resumo-clicavel" onclick="window.mostrarResumo('${livro.titulo.replace(/'/g, "\\'")}', '${livro.resumo ? livro.resumo.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n') : 'Sem resumo.'}')">Ver</span></td>
                 <td data-label="Ações">
-                    <button onclick="window.abrirEdicaoLivro(${livro.id})" class="btn btn-warning">Editar</button>
+                    <button onclick="window.aeditarLivro(${livro.id})" class="btn btn-warning">Editar</button>
                     <button onclick="window.deletarLivro(${livro.id})" class="btn btn-danger">Excluir</button>
                 </td>
             </tr>

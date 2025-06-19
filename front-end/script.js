@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td data-label="Editora">${livro.editora || 'N/A'}</td>
                 <td data-label="Resumo"><span class="resumo-clicavel" onclick="window.mostrarResumo('${livro.titulo.replace(/'/g, "\\'")}', '${livro.resumo ? livro.resumo.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n') : 'Sem resumo.'}')">Ver</span></td>
                 <td data-label="Ações">
-                    <button onclick="window.aeditarLivro(${livro.id})" class="btn btn-warning">Editar</button>
+                    <button onclick="window.editarLivro(${livro.id})" class="btn btn-warning">Editar</button>
                     <button onclick="window.deletarLivro(${livro.id})" class="btn btn-danger">Excluir</button>
                 </td>
             </tr>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca IF-Books</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout-container">
+
+        <aside class="barra-lateral">
+            <div class="logo-container">
+                <h1>Biblioteca IF-Books</h1>
+            </div>
+            <nav id="navegacao-principal">
+                <ul>
+                    <li><a href="#" class="link-navegacao ativo" data-alvo="secao-autores">Autores</a></li>
+                    <li><a href="#" class="link-navegacao" data-alvo="secao-livros">Livros</a></li>
+                    <li><a href="#" class="link-navegacao" data-alvo="secao-contato">Contato</a></li>
+                </ul>
+            </nav>
+            <footer class="footer-lateral">
+                <p>Sistema IF-Books<br>&copy; 2025</p>
+            </footer>
+        </aside>
+
+        <div class="conteudo-principal">
+            <main>
+                <section id="secao-autores" class="secao-conteudo">
+                    <h2>Lista de Autores</h2>
+                    <div class="controles">
+                        <button id="btn-adicionar-autor" class="btn btn-primary">+ Adicionar Autor</button>
+                        <button id="btn-atualizar-autores" class="btn btn-secondary">↻ Atualizar</button>
+                        <input type="text" id="pesquisa-autor-input" placeholder="🔍 Pesquisar autor...">
+                    </div>
+                    <div class="container-tabela">
+                        <table id="tabela-autores">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Nacionalidade</th>
+                                    <th>Data Nasc.</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div id="spinner-carregamento-autor" class="spinner-container escondido">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="secao-livros" class="secao-conteudo escondido">
+                    <h2>Lista de Livros</h2>
+                    <div class="controles">
+                        <button id="btn-adicionar-livro" class="btn btn-primary">+ Adicionar Livro</button>
+                        <button id="btn-atualizar-livros" class="btn btn-secondary">↻ Atualizar</button>
+                        <input type="text" id="pesquisa-livro-input" placeholder="🔍 Pesquisar livro...">
+                    </div>
+                    <div class="container-tabela">
+                        <table id="tabela-livros">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Título</th>
+                                    <th>Autor</th>
+                                    <th>Publicação</th>
+                                    <th>Editora</th>
+                                    <th>Resumo</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div id="spinner-carregamento-livro" class="spinner-container escondido">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="secao-contato" class="secao-conteudo escondido">
+                    <h2>Contato</h2>
+                    <p>Aluno: Adrian Elias Franco</p>
+                    <p>Email: adrian.franco@aluno.ifsp.edu.br</p>
+                    <p>Curso: TSI - Introdução ao Desenvolvimento de Software WEB</p>
+                    <p>Instituição: IFSP - Câmpus SJBV</p>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="notificacao" class="notificacao"></div>
+
+    <div id="modal-autor" class="modal">
+        <div class="modal-content">
+            <span class="fechar-modal" data-modal="modal-autor">&times;</span>
+            <h2 id="titulo-modal-autor">Adicionar Autor</h2>
+            <form id="formulario-autor">
+                <input type="hidden" id="id-autor">
+                <div class="form-group"><label for="nome-autor">Nome*</label><input type="text" id="nome-autor" required></div>
+                <div class="form-group"><label for="nacionalidade-autor">Nacionalidade</label><input type="text" id="nacionalidade-autor"></div>
+                <div class="form-group"><label for="data-nascimento-autor">Data Nascimento</label><input type="date" id="data-nascimento-autor"></div>
+                <button type="submit" class="btn btn-submit">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-livro" class="modal">
+        <div class="modal-content">
+            <span class="fechar-modal" data-modal="modal-livro">&times;</span>
+            <h2 id="titulo-modal-livro">Adicionar Livro</h2>
+            <form id="formulario-livro">
+                <input type="hidden" id="id-livro">
+                <div class="form-group"><label for="titulo-livro">Título*</label><input type="text" id="titulo-livro" required></div>
+                <div class="form-group"><label for="autor-livro">Autor*</label><select id="autor-livro" required><option value="">Selecione um autor...</option></select></div>
+                <div class="form-group"><label for="data-publicacao-livro">Data de Publicação</label><input type="date" id="data-publicacao-livro"></div>
+                <div class="form-group"><label for="editora-livro">Editora</label><input type="text" id="editora-livro"></div>
+                <div class="form-group"><label for="resumo-livro">Resumo</label><textarea id="resumo-livro" rows="4"></textarea></div>
+                <button type="submit" class="btn btn-submit">Salvar</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="modal-resumo" class="modal">
+        <div class="modal-content">
+            <span class="fechar-modal" data-modal="modal-resumo">&times;</span>
+            <h2 id="titulo-modal-resumo">Resumo do Livro</h2>
+            <p id="conteudo-modal-resumo" style="white-space: pre-wrap;"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

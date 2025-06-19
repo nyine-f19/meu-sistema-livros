@@ -10,6 +10,6 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-COPY --from=build /app/target/api-ifbooks-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/api-ifbooks-1.0.1.jar app.jar
 
 CMD ["java", "-jar", "app.jar"]

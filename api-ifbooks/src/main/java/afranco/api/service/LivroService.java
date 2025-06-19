@@ -2,7 +2,7 @@
  * afranco - BV3044629
  * implementado em 18/06/2025
  * atulização 18/06/2025: Padronização do método de atualização e remoção de comentários.
- */
+*/
 package afranco.api.service;
 
 import afranco.api.exceptions.EntidadeNomeJaExisteException;

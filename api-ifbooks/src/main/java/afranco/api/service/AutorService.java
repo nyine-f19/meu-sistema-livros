@@ -2,7 +2,7 @@
  * afranco - BV3044629
  * implementado em 18/06/2025
  * atulização 18/06/2025: Padronização da mensagem de exceção e remoção de comentários.
- */
+*/
 package afranco.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;

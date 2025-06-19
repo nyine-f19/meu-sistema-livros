@@ -1,306 +1,361 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const URL_BASE_API = 'https://meu-sistema-livros.onrender.com' ;
-    const URL_API_AUTORES = `${URL_BASE_API}/autores`;
-    const URL_API_LIVROS = `${URL_BASE_API}/livros`;
-    let todosOsAutores = [];
-    let todosOsLivros = [];
+document.addEventListener('DOMContentLoaded', () => {
+    // URL da sua API de produção
+    const API_BASE_URL = 'https://api-ifbooks.onrender.com'; // Altere se o nome do seu serviço for diferente
 
-    const navegacaoPrincipal = document.getElementById('navegacao-principal');
-    const secoes = document.querySelectorAll('.secao-conteudo');
-    const notificacao = document.getElementById('notificacao');
-
-    function mostrarSecao(idAlvo) {
-        secoes.forEach(secao => secao.classList.add('escondido'));
-        document.getElementById(idAlvo)?.classList.remove('escondido');
-
-        navegacaoPrincipal.querySelectorAll('.link-navegacao').forEach(link => {
-            link.classList.remove('ativo');
-            if (link.dataset.alvo === idAlvo) {
-                link.classList.add('ativo');
-            }
-        });
-    }
-
-    navegacaoPrincipal.addEventListener('click', (e) => {
-        if (e.target.matches('.link-navegacao')) {
-            e.preventDefault();
-            const idAlvo = e.target.dataset.alvo;
-            mostrarSecao(idAlvo);
-        }
-    });
-
-    function mostrarNotificacao(mensagem, tipo = 'success') {
-        notificacao.textContent = mensagem;
-        notificacao.className = `notificacao ${tipo} mostrar`;
-        setTimeout(() => notificacao.classList.remove('mostrar'), 3000);
-    }
-    
-    const secaoAutor = {
-        corpoTabela: document.getElementById('tabela-autores').querySelector('tbody'),
-        inputPesquisa: document.getElementById('pesquisa-autor-input'),
-        btnAdicionar: document.getElementById('btn-adicionar-autor'),
-        btnAtualizar: document.getElementById('btn-atualizar-autores'),
-        modal: document.getElementById('modal-autor'),
-        formulario: document.getElementById('formulario-autor'),
-        idInput: document.getElementById('id-autor'),
-        tituloModal: document.getElementById('titulo-modal-autor'),
-        spinner: document.getElementById('spinner-carregamento-autor')
-    };
-
-    async function buscarAutores() {
-        secaoAutor.spinner.classList.remove('escondido');
-        try {
-            const resposta = await fetch(URL_API_AUTORES);
-            if (!resposta.ok) throw new Error('Erro ao carregar autores.');
-            todosOsAutores = await resposta.json();
-            exibirAutores(todosOsAutores);
-            preencherDropdownAutores();
-        } catch (erro) {
-            mostrarNotificacao(erro.message, 'error');
-        } finally {
-            secaoAutor.spinner.classList.add('escondido');
-        }
-    }
-
-    function exibirAutores(autores) {
-        secaoAutor.corpoTabela.innerHTML = '';
-        if (autores.length === 0) {
-            secaoAutor.corpoTabela.innerHTML = '<tr><td colspan="5">Nenhum autor encontrado.</td></tr>';
-            return;
-        }
-        autores.forEach(autor => {
-            const linha = secaoAutor.corpoTabela.insertRow();
-            linha.innerHTML = `
-                <td>${autor.id}</td><td>${autor.nome}</td>
-                <td>${autor.nacionalidade || 'N/A'}</td>
-                <td>${autor.dataNascimento ? new Date(autor.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A'}</td>
-                <td><button class="btn btn-warning btn-editar" data-tipo="autor" data-id="${autor.id}">Editar</button> <button class="btn btn-danger btn-excluir" data-tipo="autor" data-id="${autor.id}">Excluir</button></td>
-            `;
-        });
-    }
-    
-    secaoAutor.btnAdicionar.addEventListener('click', () => {
-        secaoAutor.formulario.reset();
-        secaoAutor.idInput.value = '';
-        secaoAutor.tituloModal.textContent = 'Adicionar Autor';
-        secaoAutor.modal.style.display = 'flex';
-    });
-
-    secaoAutor.btnAtualizar.addEventListener('click', buscarAutores);
-
-    secaoAutor.formulario.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = secaoAutor.idInput.value;
-        const metodo = id ? 'PUT' : 'POST';
-        const url = id ? `${URL_API_AUTORES}/${id}` : URL_API_AUTORES;
-        const dadosAutor = {
-            nome: document.getElementById('nome-autor').value,
-            nacionalidade: document.getElementById('nacionalidade-autor').value,
-            dataNascimento: document.getElementById('data-nascimento-autor').value || null
-        };
+    // --- Seletores de Elementos (cache para performance) ---
+    const elementos = {
+        navegacao: document.getElementById('navegacao-principal'),
+        secoes: document.querySelectorAll('.secao-conteudo'),
         
-        try {
-            const resposta = await fetch(url, { method: metodo, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dadosAutor) });
-            if (!resposta.ok) {
-                const err = await resposta.json();
-                throw new Error(err.message);
-            }
-            secaoAutor.modal.style.display = 'none';
-            buscarAutores();
-            mostrarNotificacao(`Autor ${id ? 'atualizado' : 'adicionado'}!`);
-        } catch (erro) {
-            mostrarNotificacao(erro.message, 'error');
-        }
-    });
-    
-    secaoAutor.inputPesquisa.addEventListener('input', () => {
-        const consulta = secaoAutor.inputPesquisa.value.toLowerCase();
-        const filtrado = todosOsAutores.filter(a => a.nome.toLowerCase().includes(consulta));
-        exibirAutores(filtrado);
-    });
+        // Autores
+        tabelaAutores: document.getElementById('tabela-autores').querySelector('tbody'),
+        spinnerAutor: document.getElementById('spinner-carregamento-autor'),
+        btnAdicionarAutor: document.getElementById('btn-adicionar-autor'),
+        btnAtualizarAutores: document.getElementById('btn-atualizar-autores'),
+        pesquisaAutorInput: document.getElementById('pesquisa-autor-input'),
+        modalAutor: document.getElementById('modal-autor'),
+        formAutor: document.getElementById('formulario-autor'),
+        tituloModalAutor: document.getElementById('titulo-modal-autor'),
+        idAutor: document.getElementById('id-autor'),
+        nomeAutor: document.getElementById('nome-autor'),
+        nacionalidadeAutor: document.getElementById('nacionalidade-autor'),
+        dataNascimentoAutor: document.getElementById('data-nascimento-autor'),
+        
+        // Livros
+        tabelaLivros: document.getElementById('tabela-livros').querySelector('tbody'),
+        spinnerLivro: document.getElementById('spinner-carregamento-livro'),
+        btnAdicionarLivro: document.getElementById('btn-adicionar-livro'),
+        btnAtualizarLivros: document.getElementById('btn-atualizar-livros'),
+        pesquisaLivroInput: document.getElementById('pesquisa-livro-input'),
+        modalLivro: document.getElementById('modal-livro'),
+        formLivro: document.getElementById('formulario-livro'),
+        tituloModalLivro: document.getElementById('titulo-modal-livro'),
+        idLivro: document.getElementById('id-livro'),
+        tituloLivro: document.getElementById('titulo-livro'),
+        autorLivroSelect: document.getElementById('autor-livro'),
+        dataPublicacaoLivro: document.getElementById('data-publicacao-livro'),
+        editoraLivro: document.getElementById('editora-livro'),
+        resumoLivro: document.getElementById('resumo-livro'),
 
-    const secaoLivro = {
-        corpoTabela: document.getElementById('tabela-livros').querySelector('tbody'),
-        inputPesquisa: document.getElementById('pesquisa-livro-input'),
-        btnAdicionar: document.getElementById('btn-adicionar-livro'),
-        btnAtualizar: document.getElementById('btn-atualizar-livros'),
-        modal: document.getElementById('modal-livro'),
-        formulario: document.getElementById('formulario-livro'),
-        idInput: document.getElementById('id-livro'),
-        selectAutor: document.getElementById('autor-livro'),
-        tituloModal: document.getElementById('titulo-modal-livro'),
-        spinner: document.getElementById('spinner-carregamento-livro')
+        // Resumo
+        modalResumo: document.getElementById('modal-resumo'),
+        tituloModalResumo: document.getElementById('titulo-modal-resumo'),
+        conteudoModalResumo: document.getElementById('conteudo-modal-resumo'),
+        
+        // Outros
+        notificacao: document.getElementById('notificacao'),
+        fecharModais: document.querySelectorAll('.fechar-modal'),
+        btnMenuMobile: document.getElementById('btnMenuMobile'),
+        barraLateral: document.querySelector('.barra-lateral')
     };
-    
-    async function buscarLivros() {
-        secaoLivro.spinner.classList.remove('escondido');
-        try {
-            const resposta = await fetch(URL_API_LIVROS);
-            if (!resposta.ok) throw new Error('Erro ao carregar livros.');
-            todosOsLivros = await resposta.json();
-            exibirLivros(todosOsLivros);
-        } catch (erro) {
-            mostrarNotificacao(erro.message, 'error');
-        } finally {
-            secaoLivro.spinner.classList.add('escondido');
+
+    let todosAutores = [];
+    let todosLivros = [];
+
+    // --- Funções de Requisição à API (Fetch) ---
+
+    const fetchData = async (endpoint, options = {}) => {
+        const response = await fetch(`${API_BASE_URL}/${endpoint}`, options);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: `Erro HTTP: ${response.status}` }));
+            throw new Error(errorData.message || 'Ocorreu um erro na requisição.');
         }
-    }
-    
-    function exibirLivros(livros) {
-        secaoLivro.corpoTabela.innerHTML = '';
-        if (livros.length === 0) {
-            secaoLivro.corpoTabela.innerHTML = '<tr><td colspan="7">Nenhum livro encontrado.</td></tr>';
+        // Para DELETE, a resposta pode não ter corpo ou ser um JSON, então não tentamos fazer o parse.
+        if (options.method === 'DELETE' || response.status === 204) {
             return;
         }
-        livros.forEach(livro => {
-            const linha = secaoLivro.corpoTabela.insertRow();
-            const resumoCurto = livro.resumo && livro.resumo.length > 50 
-                ? livro.resumo.substring(0, 50) + '...' 
-                : (livro.resumo || 'N/A');
+        return response.json();
+    };
 
-            linha.innerHTML = `
-                <td>${livro.id}</td>
-                <td>${livro.titulo}</td>
-                <td>${livro.autor.nome}</td>
-                <td>${livro.dataPublicacao ? new Date(livro.dataPublicacao + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A'}</td>
-                <td>${livro.editora || 'N/A'}</td>
-                <td class="resumo-clicavel" onclick="mostrarResumoCompleto(this)" data-resumo="${livro.resumo || ''}">
-                    ${resumoCurto}
+    const carregarAutores = async () => {
+        elementos.spinnerAutor.classList.remove('escondido');
+        try {
+            todosAutores = await fetchData('autores');
+            renderizarTabelaAutores(todosAutores);
+        } catch (err) {
+            mostrarNotificacao(err.message, 'error');
+        } finally {
+            elementos.spinnerAutor.classList.add('escondido');
+        }
+    };
+
+    const carregarLivros = async () => {
+        elementos.spinnerLivro.classList.remove('escondido');
+        try {
+            todosLivros = await fetchData('livros');
+            renderizarTabelaLivros(todosLivros);
+        } catch (err) {
+            mostrarNotificacao(err.message, 'error');
+        } finally {
+            elementos.spinnerLivro.classList.add('escondido');
+        }
+    };
+
+    const carregarAutoresParaSelect = async () => {
+        try {
+            const autores = await fetchData('autores');
+            elementos.autorLivroSelect.innerHTML = '<option value="">Selecione um autor...</option>';
+            autores.forEach(autor => {
+                const option = document.createElement('option');
+                option.value = autor.id;
+                option.textContent = autor.nome;
+                elementos.autorLivroSelect.appendChild(option);
+            });
+        } catch (err) {
+            mostrarNotificacao('Erro ao carregar lista de autores para o formulário.', 'error');
+        }
+    };
+
+    // --- Funções de Renderização na Tela ---
+
+    const renderizarTabelaAutores = (autores) => {
+        elementos.tabelaAutores.innerHTML = autores.map(autor => `
+            <tr>
+                <td data-label="ID">${autor.id}</td>
+                <td data-label="Nome">${autor.nome}</td>
+                <td data-label="Nacionalidade">${autor.nacionalidade || 'N/A'}</td>
+                <td data-label="Data Nasc.">${autor.dataNascimento ? new Date(autor.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A'}</td>
+                <td data-label="Ações">
+                    <button onclick="window.abrirEdicaoAutor(${autor.id})" class="btn btn-warning">Editar</button>
+                    <button onclick="window.deletarAutor(${autor.id})" class="btn btn-danger">Excluir</button>
                 </td>
-                <td><button class="btn btn-warning btn-editar" data-tipo="livro" data-id="${livro.id}">Editar</button> <button class="btn btn-danger btn-excluir" data-tipo="livro" data-id="${livro.id}">Excluir</button></td>
-            `;
-        });
-    }
+            </tr>
+        `).join('');
+    };
 
-    function preencherDropdownAutores() {
-        secaoLivro.selectAutor.innerHTML = '<option value="">Selecione um autor...</option>';
-        todosOsAutores.forEach(autor => {
-            const option = document.createElement('option');
-            option.value = autor.id;
-            option.textContent = autor.nome;
-            secaoLivro.selectAutor.appendChild(option);
-        });
-    }
+    const renderizarTabelaLivros = (livros) => {
+        elementos.tabelaLivros.innerHTML = livros.map(livro => `
+            <tr>
+                <td data-label="ID">${livro.id}</td>
+                <td data-label="Título">${livro.titulo}</td>
+                <td data-label="Autor">${livro.autor ? livro.autor.nome : 'N/A'}</td>
+                <td data-label="Publicação">${livro.dataPublicacao ? new Date(livro.dataPublicacao + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A'}</td>
+                <td data-label="Editora">${livro.editora || 'N/A'}</td>
+                <td data-label="Resumo"><span class="resumo-clicavel" onclick="window.mostrarResumo('${livro.titulo.replace(/'/g, "\\'")}', '${livro.resumo ? livro.resumo.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n') : 'Sem resumo.'}')">Ver</span></td>
+                <td data-label="Ações">
+                    <button onclick="window.abrirEdicaoLivro(${livro.id})" class="btn btn-warning">Editar</button>
+                    <button onclick="window.deletarLivro(${livro.id})" class="btn btn-danger">Excluir</button>
+                </td>
+            </tr>
+        `).join('');
+    };
     
-    secaoLivro.btnAdicionar.addEventListener('click', () => {
-        secaoLivro.formulario.reset();
-        secaoLivro.idInput.value = '';
-        secaoLivro.tituloModal.textContent = 'Adicionar Livro';
-        secaoLivro.modal.style.display = 'flex';
-    });
+    // --- Lógica dos Modais ---
 
-    secaoLivro.btnAtualizar.addEventListener('click', buscarLivros);
-    
-    secaoLivro.formulario.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const idAutor = document.getElementById('autor-livro').value;
-        if (!idAutor) {
-            mostrarNotificacao("Por favor, selecione um autor.", "error");
-            return;
+    const abrirModal = (modal, titulo = '') => {
+        if (titulo) {
+            const tituloEl = modal.querySelector('h2');
+            if (tituloEl) tituloEl.textContent = titulo;
         }
-        const id = secaoLivro.idInput.value;
-        const metodo = id ? 'PUT' : 'POST';
-        const url = id ? `${URL_API_LIVROS}/${id}` : URL_API_LIVROS;
-        const dadosLivro = {
-            titulo: document.getElementById('titulo-livro').value,
-            dataPublicacao: document.getElementById('data-publicacao-livro').value || null,
-            editora: document.getElementById('editora-livro').value,
-            resumo: document.getElementById('resumo-livro').value,
-            autor: { id: idAutor }
+        modal.style.display = 'flex';
+    };
+
+    const fecharModal = (modal) => {
+        modal.style.display = 'none';
+        elementos.formAutor.reset();
+        elementos.formLivro.reset();
+        elementos.idAutor.value = '';
+        elementos.idLivro.value = '';
+    };
+
+    // --- Funções CRUD (Criar, Ler, Atualizar, Deletar) ---
+    
+    window.abrirEdicaoAutor = (id) => {
+        const autor = todosAutores.find(a => a.id === id);
+        if (autor) {
+            elementos.idAutor.value = autor.id;
+            elementos.nomeAutor.value = autor.nome;
+            elementos.nacionalidadeAutor.value = autor.nacionalidade;
+            elementos.dataNascimentoAutor.value = autor.dataNascimento;
+            abrirModal(elementos.modalAutor, "Editar Autor");
+        }
+    };
+
+    window.deletarAutor = async (id) => {
+        if (confirm('Tem certeza que deseja excluir este autor? Isso pode afetar os livros associados.')) {
+            try {
+                await fetchData(`autores/${id}`, { method: 'DELETE' });
+                mostrarNotificacao('Autor excluído com sucesso!', 'success');
+                carregarAutores();
+                carregarAutoresParaSelect();
+            } catch (err) {
+                mostrarNotificacao(err.message, 'error');
+            }
+        }
+    };
+
+    const salvarAutor = async (e) => {
+        e.preventDefault();
+        const id = elementos.idAutor.value;
+        const autor = {
+            nome: elementos.nomeAutor.value,
+            nacionalidade: elementos.nacionalidadeAutor.value,
+            dataNascimento: elementos.dataNascimentoAutor.value || null
         };
+        // Para PUT, precisamos enviar o ID no corpo também
+        if (id) {
+            autor.id = id;
+        }
+
+        const method = id ? 'PUT' : 'POST';
+        const endpoint = id ? `autores/${id}` : 'autores';
+        
+        try {
+            await fetchData(endpoint, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(autor)
+            });
+            mostrarNotificacao(`Autor ${id ? 'atualizado' : 'salvo'} com sucesso!`, 'success');
+            fecharModal(elementos.modalAutor);
+            carregarAutores();
+            carregarAutoresParaSelect();
+        } catch (err) {
+            mostrarNotificacao(err.message, 'error');
+        }
+    };
+    
+    window.abrirEdicaoLivro = (id) => {
+        const livro = todosLivros.find(l => l.id === id);
+        if (livro) {
+            elementos.idLivro.value = livro.id;
+            elementos.tituloLivro.value = livro.titulo;
+            elementos.autorLivroSelect.value = livro.autor.id;
+            elementos.dataPublicacaoLivro.value = livro.dataPublicacao;
+            elementos.editoraLivro.value = livro.editora;
+            elementos.resumoLivro.value = livro.resumo;
+            abrirModal(elementos.modalLivro, "Editar Livro");
+        }
+    };
+    
+    window.deletarLivro = async (id) => {
+        if (confirm('Tem certeza que deseja excluir este livro?')) {
+            try {
+                await fetchData(`livros/${id}`, { method: 'DELETE' });
+                mostrarNotificacao('Livro excluído com sucesso!', 'success');
+                carregarLivros();
+            } catch (err) {
+                mostrarNotificacao(err.message, 'error');
+            }
+        }
+    };
+
+    const salvarLivro = async (e) => {
+        e.preventDefault();
+        const id = elementos.idLivro.value;
+        const livro = {
+            titulo: elementos.tituloLivro.value,
+            autor: { id: elementos.autorLivroSelect.value },
+            dataPublicacao: elementos.dataPublicacaoLivro.value || null,
+            editora: elementos.editoraLivro.value,
+            resumo: elementos.resumoLivro.value,
+        };
+        if (id) {
+            livro.id = id;
+        }
+
+        const method = id ? 'PUT' : 'POST';
+        const endpoint = id ? `livros/${id}` : 'livros';
 
         try {
-            const resposta = await fetch(url, { method: metodo, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dadosLivro) });
-            if (!resposta.ok) {
-                const err = await resposta.json();
-                throw new Error(err.message || err.error);
-            }
-            secaoLivro.modal.style.display = 'none';
-            buscarLivros();
-            mostrarNotificacao(`Livro ${id ? 'atualizado' : 'adicionado'}!`);
-        } catch (erro) {
-            mostrarNotificacao(erro.message, 'error');
+            await fetchData(endpoint, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(livro)
+            });
+            mostrarNotificacao(`Livro ${id ? 'atualizado' : 'salvo'} com sucesso!`, 'success');
+            fecharModal(elementos.modalLivro);
+            carregarLivros();
+        } catch (err) {
+            mostrarNotificacao(err.message, 'error');
         }
-    });
+    };
     
-    secaoLivro.inputPesquisa.addEventListener('input', () => {
-        const consulta = secaoLivro.inputPesquisa.value.toLowerCase();
-        const filtrado = todosOsLivros.filter(l => l.titulo.toLowerCase().includes(consulta) || l.autor.nome.toLowerCase().includes(consulta));
-        exibirLivros(filtrado);
-    });
+    window.mostrarResumo = (titulo, resumo) => {
+        elementos.tituloModalResumo.textContent = `Resumo de "${titulo}"`;
+        elementos.conteudoModalResumo.textContent = resumo;
+        abrirModal(elementos.modalResumo);
+    };
 
-    document.body.addEventListener('click', async (e) => {
-        if (e.target.matches('.fechar-modal')) {
-            document.getElementById(e.target.dataset.modal).style.display = 'none';
-        }
-        if (e.target.matches('.modal')) {
-            e.target.style.display = 'none';
-        }
+    // --- Funções Utilitárias ---
 
-        if (e.target.matches('.btn-excluir')) {
-            const tipo = e.target.dataset.tipo;
-            const id = e.target.dataset.id;
-            if (confirm(`Tem certeza que deseja excluir este ${tipo}?`)) {
-                const url = tipo === 'autor' ? `${URL_API_AUTORES}/${id}` : `${URL_API_LIVROS}/${id}`;
-                try {
-                    const resposta = await fetch(url, { method: 'DELETE' });
-                    if (!resposta.ok) {
-                        const err = await resposta.json();
-                        throw new Error(err.message || 'Erro ao excluir.');
-                    }
-                    mostrarNotificacao(`${tipo.charAt(0).toUpperCase() + tipo.slice(1)} excluído!`);
-                    tipo === 'autor' ? buscarAutores() : buscarLivros();
-                } catch(erro) {
-                    mostrarNotificacao(erro.message, 'error');
-                }
+    const mostrarNotificacao = (mensagem, tipo) => {
+        elementos.notificacao.textContent = mensagem;
+        elementos.notificacao.className = `notificacao ${tipo} mostrar`;
+        setTimeout(() => {
+            elementos.notificacao.classList.remove('mostrar');
+        }, 3000);
+    };
+
+    // --- Configuração dos Event Listeners ---
+
+    const inicializar = () => {
+        // Carregamento inicial
+        carregarAutores();
+        carregarLivros();
+        carregarAutoresParaSelect();
+
+        // Navegação
+        elementos.navegacao.addEventListener('click', e => {
+            if (e.target.classList.contains('link-navegacao')) {
+                e.preventDefault();
+                const alvoId = e.target.getAttribute('data-alvo');
+                elementos.secoes.forEach(s => s.classList.add('escondido'));
+                document.getElementById(alvoId).classList.remove('escondido');
+                
+                elementos.navegacao.querySelectorAll('.link-navegacao').forEach(l => l.classList.remove('ativo'));
+                e.target.classList.add('ativo');
             }
-        }
+        });
+
+        // Botões
+        elementos.btnAdicionarAutor.addEventListener('click', () => abrirModal(elementos.modalAutor, 'Adicionar Autor'));
+        elementos.btnAdicionarLivro.addEventListener('click', () => abrirModal(elementos.modalLivro, 'Adicionar Livro'));
+        elementos.btnAtualizarAutores.addEventListener('click', carregarAutores);
+        elementos.btnAtualizarLivros.addEventListener('click', carregarLivros);
         
-        if (e.target.matches('.btn-editar')) {
-            const tipo = e.target.dataset.tipo;
-            const id = e.target.dataset.id;
-            if (tipo === 'autor') {
-                const autor = todosOsAutores.find(a => a.id == id);
-                if (autor) {
-                    secaoAutor.formulario.reset();
-                    secaoAutor.idInput.value = autor.id;
-                    document.getElementById('nome-autor').value = autor.nome;
-                    document.getElementById('nacionalidade-autor').value = autor.nacionalidade;
-                    document.getElementById('data-nascimento-autor').value = autor.dataNascimento;
-                    secaoAutor.tituloModal.textContent = 'Editar Autor';
-                    secaoAutor.modal.style.display = 'flex';
-                }
-            } else if (tipo === 'livro') {
-                const livro = todosOsLivros.find(l => l.id == id);
-                if (livro) {
-                    secaoLivro.formulario.reset();
-                    secaoLivro.idInput.value = livro.id;
-                    document.getElementById('titulo-livro').value = livro.titulo;
-                    document.getElementById('autor-livro').value = livro.autor.id;
-                    document.getElementById('data-publicacao-livro').value = livro.dataPublicacao;
-                    document.getElementById('editora-livro').value = livro.editora;
-                    document.getElementById('resumo-livro').value = livro.resumo;
-                    secaoLivro.tituloModal.textContent = 'Editar Livro';
-                    secaoLivro.modal.style.display = 'flex';
-                }
+        // Formulários
+        elementos.formAutor.addEventListener('submit', salvarAutor);
+        elementos.formLivro.addEventListener('submit', salvarLivro);
+
+        // Pesquisa
+        elementos.pesquisaAutorInput.addEventListener('input', e => {
+            const termo = e.target.value.toLowerCase();
+            const filtrados = todosAutores.filter(a => a.nome.toLowerCase().includes(termo));
+            renderizarTabelaAutores(filtrados);
+        });
+
+        elementos.pesquisaLivroInput.addEventListener('input', e => {
+            const termo = e.target.value.toLowerCase();
+            const filtrados = todosLivros.filter(l => l.titulo.toLowerCase().includes(termo));
+            renderizarTabelaLivros(filtrados);
+        });
+
+        // Modais
+        elementos.fecharModais.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal');
+                fecharModal(document.getElementById(modalId));
+            });
+        });
+
+        window.addEventListener('click', e => {
+            if (e.target.classList.contains('modal')) {
+                fecharModal(e.target);
             }
-        }
-    });
+        });
 
-    function mostrarResumoCompleto(elemento) {
-        const resumoCompleto = elemento.dataset.resumo;
-        if (resumoCompleto) {
-            document.getElementById('conteudo-modal-resumo').textContent = resumoCompleto;
-            document.getElementById('modal-resumo').style.display = 'flex';
-        }
-    }
-    window.mostrarResumoCompleto = mostrarResumoCompleto;
+        // Menu Mobile
+        elementos.btnMenuMobile.addEventListener('click', (event) => {
+            event.stopPropagation();
+            elementos.barraLateral.classList.toggle('aberta');
+        });
+        document.addEventListener('click', (event) => {
+            if (elementos.barraLateral.classList.contains('aberta') && !elementos.barraLateral.contains(event.target) && event.target !== elementos.btnMenuMobile) {
+                elementos.barraLateral.classList.remove('aberta');
+            }
+        });
+    };
 
-    async function iniciar() {
-        mostrarSecao('secao-autores');
-        await buscarAutores();
-        await buscarLivros();
-    }
-
-    iniciar();
+    inicializar();
 });

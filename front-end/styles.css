@@ -1,12 +1,13 @@
 :root {
-    --primary: #F59E0B;
+    --primary: #781F1F;
+    --primary-hover: #5A1717;
     --secondary: #4A5568;
     --danger: #DC2626;
-    --success: #10B981;
+    --success: #16A34A;
     --warning: #F59E0B;
     
     --cor-fundo-principal: #12181B;
-    --cor-superficie: #1F2933;
+    --cor-superficie: #2C2C2C;
     --cor-texto-principal: #E5E7EB;
     --cor-texto-secundario: #9CA3AF;
     
@@ -39,6 +40,7 @@ body {
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--secondary);
+    transition: transform 0.3s ease-in-out;
 }
 
 .logo-container {
@@ -48,13 +50,12 @@ body {
 
 .logo-container h1 {
     color: var(--primary);
-    font-size: 24px;
+    font-size: 30px;
 }
 
 .barra-lateral nav ul {
     list-style: none;
-    flex-direction: column;
-    gap: 10px;
+    padding: 0;
 }
 
 .barra-lateral nav a {
@@ -72,7 +73,7 @@ body {
 .barra-lateral nav a.ativo,
 .barra-lateral nav a:hover {
     background-color: var(--primary);
-    color: var(--cor-fundo-principal);
+    color: var(--cor-texto-principal);
     font-weight: bold;
 }
 
@@ -91,13 +92,15 @@ body {
 
 .controles {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
+    margin-top: 10px;
     align-items: center;
 }
 
 .btn {
-    padding: 12px 20px;
+    padding: 10px 18px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 15px;
@@ -114,32 +117,45 @@ body {
 
 .btn-primary { 
     background-color: var(--primary); 
-    color: #000000;
-    border-color: #d38e0a;
+    color: var(--cor-texto-principal);
+    border-color: var(--primary-hover);
 }
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
 .btn-secondary { 
     background-color: var(--secondary); 
     color: var(--cor-texto-principal);
-    border-color: var(--cor-texto-secundario);
+    border-color: #3e4a5a;
 }
+.btn-secondary:hover {
+    background-color: #3e4a5a;
+}
+
 .btn-warning { 
     background-color: var(--warning); 
     color: #000000;
     border-color: #d38e0a;
 }
+
 .btn-danger { 
     background-color: var(--danger); 
     color: var(--cor-texto-principal);
     border-color: #b02121;
 }
+
 .btn-submit { 
-    background-color: var(--success); 
+    background-color: var(--primary); 
     color: var(--cor-texto-principal);
     width: 100%;
     margin-top: 10px;
     padding: 12px;
     font-size: 16px;
-    border-color: #0d8a62;
+    border-color: var(--primary-hover);
+}
+.btn-submit:hover {
+    background-color: var(--primary-hover);
 }
 
 #pesquisa-autor-input, #pesquisa-livro-input {
@@ -150,7 +166,7 @@ body {
     border-radius: 5px;
     font-size: 14px;
     flex-grow: 1;
-    max-width: 300px;
+    min-width: 200px;
 }
 
 #pesquisa-autor-input::placeholder, #pesquisa-livro-input::placeholder {
@@ -166,31 +182,27 @@ body {
     border: 1px solid var(--secondary);
 }
 
-#tabela-autores, #tabela-livros {
+table {
     width: 100%;
     border-collapse: collapse;
 }
 
-#tabela-autores th, #tabela-autores td,
-#tabela-livros th, #tabela-livros td {
+table th, table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid var(--secondary);
 }
 
-#tabela-autores thead tr,
-#tabela-livros thead tr {
-    background-color: var(--secondary);
+table thead tr {
+    background-color: #374151;
     color: var(--cor-texto-principal);
 }
 
-#tabela-autores tbody tr:hover,
-#tabela-livros tbody tr:hover {
+table tbody tr:hover {
     background-color: rgba(74, 85, 104, 0.4); 
 }
 
-#tabela-autores .btn,
-#tabela-livros .btn {
+table .btn {
     padding: 5px 10px;
     font-size: 12px;
     margin-right: 5px;
@@ -215,7 +227,7 @@ body {
     background-color: var(--cor-superficie);
     padding: 30px;
     border: 1px solid var(--secondary);
-    width: 80%;
+    width: 90%;
     max-width: 500px;
     border-radius: 8px;
     position: relative;
@@ -247,10 +259,7 @@ body {
     color: var(--cor-texto-secundario);
 }
 
-.modal input[type="text"],
-.modal input[type="date"],
-.modal select,
-.modal textarea {
+.modal input, .modal select, .modal textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid var(--secondary);
@@ -258,7 +267,7 @@ body {
     color: var(--cor-texto-principal);
     border-radius: 5px;
     font-size: 14px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+    font-family: inherit;
 }
 
 .notificacao {
@@ -267,7 +276,7 @@ body {
     right: 20px;
     padding: 15px 25px;
     border-radius: 8px;
-    color: var(--cor-fundo-principal);
+    color: #FFFFFF;
     font-size: 16px;
     font-weight: bold;
     z-index: 2000;
@@ -288,7 +297,6 @@ body {
 
 .notificacao.error {
     background-color: var(--danger);
-    color: var(--cor-texto-principal);
 }
 
 .spinner-container {
@@ -300,7 +308,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(31, 41, 51, 0.7);
+    background-color: rgba(44, 44, 44, 0.7);
     border-radius: 8px;
     min-height: 150px;
 }
@@ -320,17 +328,35 @@ body {
 }
 
 .escondido {
-    display: block;
-    opacity: 0;
-    visibility: hidden;
-    height: 0;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
+    display: none !important;
 }
 
-.secao-conteudo {
-    transition: opacity 0.5s ease-in-out;
+.resumo-clicavel {
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--cor-texto-secundario);
+}
+
+.resumo-clicavel:hover {
+    color: var(--primary);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.btn-menu-mobile {
+    display: none;
+}
+
+/* --- CORREÇÃO DE LAYOUT (Contato e Seções Principais) --- */
+main {
+  width: 100%;
+}
+
+#secao-autores, #secao-livros {
+  width: 100%;
 }
 
 #secao-contato {
@@ -364,33 +390,95 @@ body {
     margin-bottom: 0;
 }
 
-.resumo-clicavel {
-    cursor: pointer;
-    color: var(--cor-texto-secundario);
-}
 
-.resumo-clicavel:hover {
-    color: var(--primary);
-}
+/* ########################################## */
+/* --- REGRAS DE RESPONSIVIDADE PARA CELULAR --- */
+/* ########################################## */
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 24 24"><path fill="%239CA3AF" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>') no-repeat;
-    cursor: pointer;
-}
+@media (max-width: 768px) {
 
-.container {
-   max-width: none;
-   margin: 0;
-   padding: 0;
-}
+    .barra-lateral {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        z-index: 1100;
+        transform: translateX(-100%);
+    }
 
-header {
-    display: none;
-}
+    .barra-lateral.aberta {
+        transform: translateX(0);
+    }
 
-main {
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    background-color: transparent;
+    .btn-menu-mobile {
+        display: block;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1050;
+        background-color: var(--cor-superficie);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        border-radius: 5px;
+        width: 45px;
+        height: 45px;
+        font-size: 24px;
+        padding: 0;
+    }
+    
+    .conteudo-principal {
+        padding: 20px;
+        padding-top: 80px;
+    }
+
+    .controles {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    #pesquisa-autor-input, #pesquisa-livro-input {
+        min-width: unset;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        border: 1px solid var(--secondary);
+        margin-bottom: 15px;
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    td {
+        border: none;
+        border-bottom: 1px solid #4A5568;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+        min-height: 30px;
+    }
+    
+    td:last-child {
+        border-bottom: 0;
+    }
+
+    td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: var(--primary);
+    }
 }
